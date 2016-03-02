@@ -3,6 +3,8 @@
 
 # Installation
 
+## OSX
+
 Make sure you have [libfreenect2](https://github.com/OpenKinect/libfreenect2) installed
 
 And OpenCV installed
@@ -24,5 +26,5 @@ And the python bindings work
 Now run the install script
 ```
 ./install.sh
-``
+```
 
