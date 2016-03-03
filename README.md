@@ -28,3 +28,25 @@ Now run the install script
 ./install.sh
 ```
 
+## Linux
+TODO: Add steps for Linux installation
+
+## Windows
+TODO: Add steps for Windows installation
+
+# Running
+```
+./main.py
+```
+
+# TODO
+ - Finish modularizing the code
+ - Work on best way to get quad location in Frame
+   - CamShiftFilter
+   - KNNBackgroundSubtractor
+   - CascadeClassifier
+ - Define API for sending quad location to client apps
+ - Switch to use setup.py
+
+
+
