@@ -13,7 +13,7 @@ brew tap homebrew/science
 brew install opencv3 --with-contrib --with-cuda --with-ffmpeg --with-tbb --with-qt5
 ```
 
-And the python bindings work
+Check if the python bindings work
 ```
  % python
  Python 2.7.10 (default, Sep 23 2015, 04:34:21)

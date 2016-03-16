@@ -60,6 +60,7 @@ def main():
     color = frames["color"]
     ir = frames["ir"]
     depth = frames["depth"]
+
     kernel = np.ones((5,5),np.uint8)
 
     registration.apply(color, depth, undistorted, registered)
@@ -73,17 +74,17 @@ def main():
     if firstFrame is None:
       firstFrame = gray
 
-    frameDelta = cv2.absdiff(firstFrame, gray)
-    thresh = cv2.threshold(frameDelta, 25, 255, cv2.THRESH_BINARY)[1]
-    thresh = cv2.dilate(thresh, None, iterations=1)
-
-    _, cnts, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    for c in cnts:
-      if cv2.contourArea(c) < 500:
-        continue
-      (cx, cy, cw, ch) = cv2.boundingRect(c)
-      cv2.rectangle(color, (cx, cy), (cx+cw, cy+ch), (0,0,255), 2)
+    # frameDelta = cv2.absdiff(firstFrame, gray)
+    # thresh = cv2.threshold(frameDelta, 25, 255, cv2.THRESH_BINARY)[1]
+    # thresh = cv2.dilate(thresh, None, iterations=10)
+    #
+    # _, cnts, _ = cv2.findContours(thresh.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    #
+    # for c in cnts:
+    #   if cv2.contourArea(c) < 500:
+    #     continue
+    #   (cx, cy, cw, ch) = cv2.boundingRect(c)
+    #   cv2.rectangle(color, (cx, cy), (cx+cw, cy+ch), (0,0,255), 2)
 
     if roiBox is not None:
       backProj = cv2.calcBackProject([fgmask], [0], roiHist, [0, 180], 1)
@@ -104,7 +105,7 @@ def main():
       cv2.polylines(color, [pts], True, (0, 255, 0), 2)
       cv2.polylines(hsv, [pts], True, (0, 255, 0), 2)
 
-    # cv2.imshow('hsv', hsv)
+    cv2.imshow('hsv', hsv)
     cv2.imshow('color', color)
     cv2.imshow('frame', fgmask)
     key = cv2.waitKey(1) & 0xFF
