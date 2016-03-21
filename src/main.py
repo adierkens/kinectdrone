@@ -1,7 +1,9 @@
+#!../env/bin/python
 import argparse
 import Camera
 import Tracking
-import Beacon
+import cv2
+import gc
 
 def getArguments():
   parser = argparse.ArgumentParser(description='kinect-drone - a utility to track a quadcopter using a kinect')
@@ -13,30 +15,33 @@ def getArguments():
 def main():
   args = getArguments()
   camera = None
-  if args['videofile'] is not None:
-    camera = Camera.VideoCamera(args['videofile'])
+  if args.videofile:
+    camera = Camera.VideoCamera(args.videofile)
   else:
     camera = Camera.getCamera()
   drone = Tracking.Drone()
 
+  cv2.namedWindow('frame')
+
   def run():
     while True:
       frames = camera.getFrames()
-      position = drone.getPosition(frames)
-      Beacon.beacon({
-        "event": "quad-position",
-        "data": {
-          "x": position[0],
-          "y": position[1],
-          "z": position[2]
-        }
-      })
-      print 'New position: X:%s Y:%s Z:%s' % position
+      if frames is None:
+        return
+      frame = cv2.resize(frames['color'], (0,0), fx=0.5, fy=0.5)
+      cv2.imshow('frame', frame)
+
+      key = cv2.waitKey(1)
+      if key == ord('q'):
+        break
+      del frame
+      gc.collect()
+
 
   try:
     run()
-  except:
-    pass
+  except Exception as e:
+    print e
   finally:
     camera.stop()
 

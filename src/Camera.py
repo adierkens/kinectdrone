@@ -39,7 +39,7 @@ class KinectCamera(Camera):
 class WebCam(Camera):
 
   def __init__(self):
-    self._capture = cv2.VideoCapture(0)
+    self._capture = cv2.VideoCapture()
 
   def getFrames(self):
     ret, frame = self._capture.read()

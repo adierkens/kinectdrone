@@ -7,4 +7,4 @@ class Drone:
     self._backgroundSubtractor = BackgroundRemovalFilter()
 
   def getPosition(self, frames):
-    return 0,0,0
+    cv2.imshow('frame', frames['color'])
