@@ -35,9 +35,49 @@ TODO: Add steps for Linux installation
 TODO: Add steps for Windows installation
 
 # Running
+
+
+# Cascade Images
+
+A helper python script for running classifiers on movies, and generating pictures to use in creating a cascade classifier.
+
 ```
-./main.py
+ % ./cascadeImages.py -h
+usage: cascadeImages.py [-h] [--output OUTPUT] [--negative] [--stream STREAM]
+                        [--cascade CASCADE]
+                        videofile
+
+Filters a video for positive images for use with Cascade Classifiers
+
+positional arguments:
+  videofile             The video to process
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --output OUTPUT, -o OUTPUT
+                        The folder to store all of the positive images
+  --negative, -n        Generate photos that don't contain the image
+  --stream STREAM, -s STREAM
+                        Stream the location data of the quad to a network
+                        address. Supports http:// POST and ws://
+  --cascade CASCADE, -c CASCADE
+                        A cascade filter to use on the video stream
 ```
+
+
+### Using the generated classifier for a quadcopter
+
+```
+./cascadeImages.py ../../videos/quad_ballroom.mov -c ../../classifiers/quadcopter-cascade-1500.xml
+```
+
+### Using the tld tracker
+
+Once the video is started, press `i` on your keyboard. This will pause the video on that frame
+Using your mouse, click the 4 corners of the area you wish to track. A green dot will be placed when you click.
+
+After selecting the 4 points for the bounding box, press the space bar. 
+The video will resume and a blue box will form around the object you're tracking.
 
 # TODO
  - Finish modularizing the code
