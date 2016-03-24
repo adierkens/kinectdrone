@@ -73,6 +73,10 @@ optional arguments:
 
 ### Using the tld tracker
 
+```
+./cascadeImages.py ../../videos/quad_ballroom.mov
+```
+
 Once the video is started, press `i` on your keyboard. This will pause the video on that frame
 Using your mouse, click the 4 corners of the area you wish to track. A green dot will be placed when you click.
 <img width="962" alt="screen shot 2016-03-23 at 10 30 48 pm" src="https://cloud.githubusercontent.com/assets/13004162/14006794/41939f34-f147-11e5-89eb-9be4f3da4007.png">
