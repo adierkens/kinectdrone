@@ -6,6 +6,9 @@ import argparse
 import numpy as np
 import requests
 import datetime
+import thread
+from websocket import create_connection
+import json
 
 WINDOW_NAME = 'Cascade Filter'
 frame = None
@@ -15,6 +18,7 @@ roiBox = None
 tracker = cv2.Tracker_create('TLD')
 trackerInit = False
 pastPoints = []
+ws = None
 
 def getNextImageNumber(directory):
   files = os.listdir(directory)
@@ -57,13 +61,25 @@ def stream(location, point):
     'timestamp': datetime.datetime.now()
   }
 
+  event = {
+    'type': 'position',
+    'data': payload
+  }
+
   def sendPostRequest():
-    r = requests.post(location, json=payload)
+    r = requests.post(location, json=event)
 
   def sendWebSocket():
-    pass
+    global ws
+    if not ws:
+      ws = create_connection(location)
+      ws.send(json.dumps(event))
 
   try:
+    sendRequest = sendPostRequest
+    if location.startsWith('ws://'):
+      sendRequest = sendWebSocket
+
     thread.start_new_thread(sendRequest)
   except:
     print "Error: Unable to start thread"
