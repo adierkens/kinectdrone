@@ -5,7 +5,10 @@ import cv2
 import argparse
 import numpy as np
 import requests
-import datetime
+import time
+from threading import Thread
+from websocket import create_connection
+import json
 
 WINDOW_NAME = 'Cascade Filter'
 frame = None
@@ -15,6 +18,7 @@ roiBox = None
 tracker = cv2.Tracker_create('TLD')
 trackerInit = False
 pastPoints = []
+ws = None
 
 def getNextImageNumber(directory):
   files = os.listdir(directory)
@@ -54,18 +58,32 @@ def stream(location, point):
     'x': point[0],
     'y': point[1],
     'z': 0,
-    'timestamp': datetime.datetime.now()
+    'milliseconds':   int(round(time.time() * 1000)) 
+  }
+
+  event = {
+    'event': 'position',
+    'data': payload
   }
 
   def sendPostRequest():
-    r = requests.post(location, json=payload)
+    r = requests.post(location, json=event)
 
   def sendWebSocket():
-    pass
+    global ws
+    if not ws:
+      ws = create_connection(location)
+    ws.send(json.dumps(event))
 
   try:
-    thread.start_new_thread(sendRequest)
-  except:
+    sendRequest = sendPostRequest
+    if location.startswith('ws://'):
+      sendRequest = sendWebSocket
+
+    thread = Thread(target=sendRequest)
+    thread.start()
+  except Exception as e:
+    print e
     print "Error: Unable to start thread"
 
 def main():
@@ -95,10 +113,9 @@ def main():
       break
     frame = cv2.resize(origFrame, (0,0), fx=0.5, fy=0.5)
     hsvFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    grayFrame = cv2.cvtColor(origFrame, cv2.COLOR_BGR2GRAY)
 
     if cascade:
-      quads = cascade.detectMultiScale(grayFrame)
+      quads = cascade.detectMultiScale(hsvFrame, minSize=(90/2, 50/2), maxSize=(300/2, 140/2), minNeighbors=10, scaleFactor=1.05)
 
     if args.output and args.negative:
       cv2.imwrite("./%s/negative%d.png" % (args.output, imageNumber), origFrame)
@@ -116,18 +133,21 @@ def main():
     
       currentPosition = ( (p1[0] + p2[0])/2, (p1[1] + p2[1])/2  )
       
+      origHeight, origWidth, _ = origFrame.shape
+
       if currentPosition[0] > 0 and currentPosition[1] > 0:
         pastPoints.append(currentPosition)
         roi = origFrame[p1[1]*2:p2[1]*2, p1[0]*2:p2[0]*2]
 
         height, width, channels = roi.shape
+
         if height > 0 and width > 0:
           cv2.imshow('roi', roi)
           if args.output:
             cv2.imwrite("./%s/positive%d.png" % (args.output, imageNumber) , roi)
           imageNumber += 1
           if args.stream:
-            stream(args.stream, currentPosition)
+            stream(args.stream, (origWidth - currentPosition[0], origHeight - currentPosition[1]) )
 
       cv2.rectangle(frame, p1, p2, (250, 0, 0), 2)
       cv2.rectangle(hsvFrame, p1, p2, (250, 0, 0), 2)
@@ -135,8 +155,9 @@ def main():
     
     if quads is not None:
       for (x,y,w,h) in quads:
-        cv2.rectangle(frame, (x/2,y/2), ((x+w)/2, (y+h)/2), (255, 0, 0), 2)
-    
+        # cv2.rectangle(frame, (x/2,y/2), ((x+w)/2, (y+h)/2), (255, 0, 0), 2)
+        cv2.rectangle(frame, (x,y), (x+w,y+h), (255, 0, 0), 2)
+
     cv2.imshow(WINDOW_NAME, frame)
 
     key = cv2.waitKey(1)
@@ -152,6 +173,7 @@ def main():
       tl = roiPoints[np.argmin(s)]
       br = roiPoints[np.argmax(s)]
       roiBox = (tl[0], tl[1], br[0], br[1])
+      print roiBox
 
 if __name__ == '__main__':
   main()
