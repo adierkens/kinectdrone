@@ -1,3 +1,0 @@
-videos/quad_ballroom.mov filter=lfs diff=lfs merge=lfs -text
-videos/quad_ballroom_360_view.mov filter=lfs diff=lfs merge=lfs -text
-videos/quad_ballroom_black.mov filter=lfs diff=lfs merge=lfs -text
