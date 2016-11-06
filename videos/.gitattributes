@@ -1,2 +1,0 @@
-quad_ballroom_black_negative.mov filter=lfs diff=lfs merge=lfs -text
-quad_ballroom_negative.mov filter=lfs diff=lfs merge=lfs -text
